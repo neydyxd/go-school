@@ -1,0 +1,132 @@
+/* Go School: мир «схема метро». Цвет несут только линии модулей, остальное монохром. */
+
+:root {
+  --gs-font-display: 'Science Gothic', 'Arial Narrow', sans-serif;
+  --gs-font-text: 'Commissioner', system-ui, sans-serif;
+  --gs-font-mono: 'Ubuntu Sans Mono', ui-monospace, Menlo, monospace;
+
+  /* светлая: кафель станции */
+  --vp-c-bg: #f2f4f6;
+  --vp-c-bg-alt: #e9edf1;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-bg-soft: #e6eaef;
+  --vp-c-text-1: #121c28;
+  --vp-c-text-2: #4a5867;
+  --vp-c-text-3: #7d8896;
+  --vp-c-divider: #cfd6de;
+  --vp-c-gutter: #dde3e9;
+
+  --gs-line: oklch(0.55 0.17 262);
+  --vp-c-brand-1: #121c28;
+  --vp-c-brand-2: #2b3746;
+  --vp-c-brand-3: #121c28;
+  --vp-c-brand-soft: rgba(18, 28, 40, 0.08);
+
+  --gs-board-bg: #121c28;
+  --gs-board-ink: #f2f4f6;
+  --gs-ok: #1f7a46;
+  --gs-bad: #c23a2b;
+  --gs-trap: #c23a2b;
+  --gs-interview: #121c28;
+
+  --vp-font-family-base: var(--gs-font-text);
+  --vp-font-family-mono: var(--gs-font-mono);
+  --vp-code-font-size: 0.9em;
+  --vp-code-bg: rgba(18, 28, 40, 0.07);
+  --vp-code-color: #121c28;
+  --vp-code-block-bg: #ffffff;
+  --vp-layout-max-width: 1440px;
+}
+
+.dark {
+  /* тёмная: тоннель */
+  --vp-c-bg: #0b1118;
+  --vp-c-bg-alt: #0e151d;
+  --vp-c-bg-elv: #131c26;
+  --vp-c-bg-soft: #141d27;
+  --vp-c-text-1: #e6ecf2;
+  --vp-c-text-2: #9aa8b7;
+  --vp-c-text-3: #6b7887;
+  --vp-c-divider: #243242;
+  --vp-c-gutter: #0b1118;
+
+  --vp-c-brand-1: #e6ecf2;
+  --vp-c-brand-2: #c9d3dd;
+  --vp-c-brand-3: #e6ecf2;
+  --vp-c-brand-soft: rgba(230, 236, 242, 0.1);
+
+  --gs-board-bg: #e6ecf2;
+  --gs-board-ink: #0b1118;
+  --gs-ok: #4cc283;
+  --gs-bad: #ff7a69;
+  --gs-trap: #ff7a69;
+  --gs-interview: #e6ecf2;
+
+  --vp-code-bg: rgba(230, 236, 242, 0.08);
+  --vp-code-color: #e6ecf2;
+  --vp-code-block-bg: #121a23;
+}
+
+body { background: var(--vp-c-bg); }
+
+/* Типографика урока */
+.vp-doc { font-size: 17.5px; line-height: 1.7; }
+.vp-doc p, .vp-doc li { max-width: 72ch; }
+.vp-doc h1, .vp-doc h2, .vp-doc h3 {
+  font-family: var(--gs-font-display);
+  font-variation-settings: 'wdth' 78;
+  letter-spacing: -0.01em;
+}
+.vp-doc h1 { font-size: clamp(36px, 5vw, 52px); font-weight: 900; line-height: 1; }
+.vp-doc h2 {
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 4px solid var(--gs-line);
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.vp-doc h3 { font-size: 22px; font-weight: 700; }
+.vp-doc a { color: var(--vp-c-text-1); text-decoration-color: var(--gs-line); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.vp-doc a:hover { text-decoration-thickness: 3px; }
+.vp-doc :not(pre) > code { font-weight: 500; }
+.vp-doc div[class*='language-'] { border-radius: 4px; border: 1px solid var(--vp-c-divider); }
+.vp-doc table { font-size: 15px; }
+
+/* Сайдбар: группы модулей с цветом линии делать неоткуда, поэтому монохром и крупнее */
+.VPSidebarItem.level-0 > .item .text { font-family: var(--gs-font-display); font-weight: 700; font-size: 15px; }
+.VPSidebarItem .text { font-size: 14px; }
+.VPNavBarTitle .title { font-family: var(--gs-font-display); font-weight: 900; font-size: 20px; letter-spacing: -0.01em; }
+
+/* Блоки урока: ::: hood / ::: trap / ::: interview */
+.gs-block { margin: 28px 0; padding: 14px 20px 6px; border-radius: 4px; }
+.gs-block-title {
+  margin: 0 0 6px !important;
+  font-family: var(--gs-font-display);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+/* Под капотом: разрез тоннеля, пунктир и цвет линии */
+.gs-hood { border: 2px dashed var(--gs-line); background: color-mix(in oklch, var(--gs-line) 6%, var(--vp-c-bg)); }
+.gs-hood .gs-block-title { color: var(--vp-c-text-1); }
+/* Грабли: красная пометка учителя на полях */
+.gs-trap { border-left: 6px solid var(--gs-trap); background: color-mix(in oklch, var(--gs-trap) 7%, var(--vp-c-bg)); }
+.gs-trap .gs-block-title { color: var(--gs-trap); }
+/* На собесе спросят: инвертированная плашка, как табло */
+.gs-interview { background: var(--gs-board-bg); color: var(--gs-board-ink); }
+.gs-interview .gs-block-title { color: var(--gs-board-ink); opacity: 0.8; }
+.gs-interview a { color: inherit; }
+.gs-interview :not(pre) > code { background: rgba(127, 127, 127, 0.25); color: inherit; }
+.gs-interview details { border-top: 1px solid rgba(127, 127, 127, 0.35); padding: 10px 0; }
+.gs-interview details:first-of-type { border-top: 0; }
+.gs-interview summary { cursor: pointer; font-weight: 600; }
+.gs-interview details[open] summary { margin-bottom: 6px; }
+
+/* Стандартный details (спойлер эталона) */
+.vp-doc .custom-block.details { border-radius: 4px; background: var(--vp-c-bg-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
