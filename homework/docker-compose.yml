@@ -1,0 +1,20 @@
+# База для практики модулей 07-09. Запуск: docker compose up -d (из папки homework)
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: goschool
+      POSTGRES_PASSWORD: goschool
+      POSTGRES_DB: goschool
+    command: ["postgres", "-c", "max_connections=300"]
+    ports: ["55432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U goschool"]
+      interval: 2s
+      retries: 30
+  redis:
+    image: redis:7-alpine
+    ports: ["56379:6379"]
+volumes:
+  pgdata:

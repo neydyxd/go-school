@@ -6,7 +6,8 @@ cd "$(dirname "$0")/.."
 pattern="${1:-./...}"
 go vet "$pattern" || { echo "go vet упал на заготовках"; exit 2; }
 bad=()
-for pkg in $(go list -f '{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' "$pattern"); do
+# internal/ это общие хелперы курса (testdb, testredis), их тесты должны проходить
+for pkg in $(go list -f '{{if or .TestGoFiles .XTestGoFiles}}{{.ImportPath}}{{end}}' "$pattern" | grep -v '/internal/'); do
   if go test -count=1 "$pkg" >/dev/null 2>&1; then bad+=("$pkg"); fi
 done
 if ((${#bad[@]})); then
