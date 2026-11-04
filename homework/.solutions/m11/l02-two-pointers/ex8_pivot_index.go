@@ -1,0 +1,22 @@
+package l02twopointers
+
+// PivotIndex возвращает самый левый индекс i, для которого сумма элементов
+// слева от i равна сумме элементов справа от i (сам nums[i] не входит ни
+// в одну из сумм; сумма пустой части равна 0). Если такого индекса нет,
+// верни -1.
+//
+// Ожидаемая сложность: O(n) по времени и O(1) по дополнительной памяти.
+func PivotIndex(nums []int) int {
+	total := 0
+	for _, v := range nums {
+		total += v
+	}
+	left := 0
+	for i, v := range nums {
+		if left == total-left-v {
+			return i
+		}
+		left += v
+	}
+	return -1
+}
