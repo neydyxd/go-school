@@ -99,8 +99,8 @@ const num = (m: Module) => String(Number(m.id.slice(1)))
 }
 .lead { margin: 0; font-size: clamp(18px, 1.6vw, 21px); line-height: 1.5; max-width: 52ch; color: var(--vp-c-text-1); }
 .status { display: flex; flex-direction: column; gap: 16px; }
-.meter { display: flex; align-items: baseline; gap: 10px; font-family: var(--gs-font-display); }
-.meter-big { font-size: 56px; font-weight: 600; font-variation-settings: 'wdth' 100; line-height: 1; font-variant-numeric: tabular-nums; }
+.meter { display: flex; align-items: baseline; gap: 10px; }
+.meter-big { font-family: var(--gs-font-text); font-size: 56px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
 .meter-of { color: var(--vp-c-text-2); font-size: 15px; }
 .go {
   display: flex;
@@ -142,9 +142,8 @@ const num = (m: Module) => String(Number(m.id.slice(1)))
   display: grid;
   place-items: center;
   box-shadow: 0 0 0 6px var(--vp-c-bg);
-  font-family: var(--gs-font-display);
-  font-weight: 600;
-  font-variation-settings: 'wdth' 100;
+  font-family: var(--gs-font-text);
+  font-weight: 700;
   font-size: 22px;
   color: var(--pin-ink);
 }

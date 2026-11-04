@@ -105,7 +105,7 @@ const pos = computed(() => {
   padding-right: 6px;
 }
 .here .name { opacity: 1; font-weight: 600; }
-.stop a:hover .name { opacity: 1; text-decoration: underline; }
+.stop a:hover .name, .stop a:focus-visible .name { opacity: 1; text-decoration: underline; }
 .stop a:focus-visible { outline: 2px solid var(--line); outline-offset: 4px; border-radius: 4px; }
 .board-next { margin: 4px 0 0; font-size: 14px; }
 @media (max-width: 640px) {

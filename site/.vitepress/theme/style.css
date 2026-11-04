@@ -89,6 +89,7 @@ body { background: var(--vp-c-bg); }
 .vp-doc h3 { font-size: 22px; font-weight: 700; }
 .vp-doc a { color: var(--vp-c-text-1); text-decoration-color: var(--gs-line); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 .vp-doc a:hover { text-decoration-thickness: 3px; }
+.vp-doc a:focus-visible { outline: 2px solid var(--gs-line); outline-offset: 2px; border-radius: 2px; }
 .vp-doc :not(pre) > code { font-weight: 500; }
 .vp-doc div[class*='language-'] { border-radius: 4px; border: 1px solid var(--vp-c-divider); }
 .vp-doc table { font-size: 15px; }
