@@ -12,7 +12,7 @@
   --vp-c-bg-soft: #e6eaef;
   --vp-c-text-1: #121c28;
   --vp-c-text-2: #4a5867;
-  --vp-c-text-3: #7d8896;
+  --vp-c-text-3: #5c6876;
   --vp-c-divider: #cfd6de;
   --vp-c-gutter: #dde3e9;
 
@@ -26,7 +26,7 @@
   --gs-board-ink: #f2f4f6;
   --gs-ok: #1f7a46;
   --gs-bad: #c23a2b;
-  --gs-trap: #c23a2b;
+  --gs-trap: #a92e1f;
   --gs-interview: #121c28;
 
   --vp-font-family-base: var(--gs-font-text);
@@ -46,7 +46,7 @@
   --vp-c-bg-soft: #141d27;
   --vp-c-text-1: #e6ecf2;
   --vp-c-text-2: #9aa8b7;
-  --vp-c-text-3: #6b7887;
+  --vp-c-text-3: #8a97a6;
   --vp-c-divider: #243242;
   --vp-c-gutter: #0b1118;
 
@@ -124,6 +124,10 @@ body { background: var(--vp-c-bg); }
 .gs-interview details:first-of-type { border-top: 0; }
 .gs-interview summary { cursor: pointer; font-weight: 600; }
 .gs-interview details[open] summary { margin-bottom: 6px; }
+
+/* Комментарии в коде несут выводы программ: тёмная тема Shiki даёт им контраст 3.6, поднимаем до AA */
+.dark .vp-doc [class*='language-'] span[style*='--shiki-dark:#6A737D'] { --shiki-dark: #9aa6b2 !important; }
+.vp-doc [class*='language-'] span[style*='--shiki-light:#E36209'] { --shiki-light: #b04d00 !important; }
 
 /* Стандартный details (спойлер эталона) */
 .vp-doc .custom-block.details { border-radius: 4px; background: var(--vp-c-bg-soft); }
