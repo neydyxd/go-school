@@ -1,0 +1,22 @@
+package l06patterns
+
+import "context"
+
+// Gen: генератор. Возвращает канал, в который отдельная горутина по очереди
+// отправляет nums и затем закрывает его.
+// Если ctx отменён, горутина прекращает отправку, закрывает канал и выходит,
+// даже если читатель больше ничего не читает (никаких вечно висящих горутин).
+func Gen(ctx context.Context, nums ...int) <-chan int {
+	out := make(chan int)
+	go func() {
+		defer close(out)
+		for _, n := range nums {
+			select {
+			case out <- n:
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return out
+}

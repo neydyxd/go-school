@@ -1,0 +1,29 @@
+package l05context
+
+import (
+	"context"
+	"time"
+)
+
+// Sleep ждёт d или отмену ctx, смотря что случится раньше.
+//
+//   - Время d прошло: вернуть nil.
+//   - ctx отменён раньше (или уже был отменён на входе): сразу вернуть ctx.Err().
+//   - d <= 0: не ждать, вернуть ctx.Err() (для живого контекста это nil).
+//
+// Новых горутин не запускай. Таймер после выхода лучше остановить (t.Stop):
+// с Go 1.23 неостановленный таймер всё равно соберёт GC, но привычка полезная,
+// а тест этого не проверяет.
+func Sleep(ctx context.Context, d time.Duration) error {
+	if d <= 0 {
+		return ctx.Err()
+	}
+	t := time.NewTimer(d)
+	defer t.Stop()
+	select {
+	case <-t.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
