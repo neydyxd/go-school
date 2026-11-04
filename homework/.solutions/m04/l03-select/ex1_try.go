@@ -1,0 +1,42 @@
+package l03select
+
+// RecvStatus описывает результат неблокирующего чтения.
+type RecvStatus int
+
+const (
+	Empty    RecvStatus = iota // значения сейчас нет (или канал nil), ждать не стали
+	Received                   // значение прочитано
+	Closed                     // канал закрыт и пуст
+)
+
+// TrySend пытается отправить v в ch, не блокируясь.
+// true, если значение отправлено; false, если отправка сейчас
+// заблокировала бы горутину (буфер полон, нет получателя, канал nil).
+// Отправку в закрытый канал не обрабатывай: это ошибка вызывающего,
+// и паника тут правильное поведение.
+func TrySend(ch chan<- int, v int) bool {
+	select {
+	case ch <- v:
+		return true
+	default:
+		return false
+	}
+}
+
+// TryRecv пытается прочитать из ch, не блокируясь.
+//   - есть значение: (значение, Received);
+//   - канал закрыт и буфер пуст: (0, Closed);
+//   - иначе, включая nil-канал: (0, Empty).
+//
+// Помни: закрытый канал сначала отдаёт всё, что осталось в буфере.
+func TryRecv(ch <-chan int) (int, RecvStatus) {
+	select {
+	case v, ok := <-ch:
+		if !ok {
+			return 0, Closed
+		}
+		return v, Received
+	default:
+		return 0, Empty
+	}
+}
