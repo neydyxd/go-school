@@ -1,0 +1,10 @@
+-- Задача 4. Индекс по выражению.
+--
+-- Поиск заказов по email без учёта регистра:
+--
+--   SELECT id FROM orders WHERE lower(email) = 'user42@mail.example';
+--
+-- Обычный индекс по email здесь бесполезен: в условии не email, а lower(email).
+-- Создай индекс, который этот запрос использует (в плане нет Seq Scan).
+--
+-- TODO: CREATE INDEX ...

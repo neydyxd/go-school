@@ -1,0 +1,17 @@
+-- Задача 2. Покрывающий индекс.
+--
+-- Отчёт по группе клиентов:
+--
+--   SELECT customer_id, sum(amount)
+--   FROM orders
+--   WHERE customer_id BETWEEN 100 AND 199
+--   GROUP BY customer_id;
+--
+-- Создай индекс, с которым Postgres может вообще не ходить в таблицу:
+-- в плане должен быть Index Only Scan, а индекс должен начинаться
+-- с customer_id. Карта видимости зависит от VACUUM, поэтому тест строит план
+-- с запретом Seq Scan и Bitmap Scan (SET LOCAL enable_seqscan = off и
+-- enable_bitmapscan = off): для покрывающего индекса Postgres тогда выберет
+-- Index Only Scan, для непокрывающего обычный Index Scan.
+--
+-- TODO: CREATE INDEX ...
