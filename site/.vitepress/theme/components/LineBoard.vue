@@ -4,13 +4,14 @@ import { withBase } from 'vitepress'
 import { useCourse } from '../useCourse'
 
 // Табло вагона: линия модуля, станции-уроки, текущая подсвечена.
-const { current, ready, isDone, lessonPath } = useCourse()
+const { current, ready, isDone, lessonPath, modules } = useCourse()
 
 const pos = computed(() => {
   const c = current.value
   if (!c) return null
   const i = c.m.lessons.findIndex((l) => l.id === c.l.id)
-  return { i, n: c.m.lessons.length, next: c.m.lessons[i + 1] ?? null }
+  const lastLine = c.m.id === modules[modules.length - 1].id
+  return { i, n: c.m.lessons.length, next: c.m.lessons[i + 1] ?? null, lastLine }
 })
 </script>
 
@@ -25,7 +26,7 @@ const pos = computed(() => {
         v-for="(l, i) in current.m.lessons"
         :key="l.id"
         class="stop"
-        :class="{ done: isDone(l.id), here: i === pos.i, soon: !ready.has(l.id) }"
+        :class="{ done: isDone(l.id), here: i === pos.i, soon: !ready.has(l.id), tail: i >= pos.n / 2 }"
       >
         <a v-if="ready.has(l.id) && i !== pos.i" :href="withBase(lessonPath(current.m, l))" :title="l.title">
           <span class="dot" /><span class="name">{{ l.title }}</span>
@@ -36,6 +37,7 @@ const pos = computed(() => {
       </li>
     </ol>
     <p v-if="pos.next" class="board-next">Следующая станция: <b>{{ pos.next.title }}</b></p>
+    <p v-else-if="pos.lastLine" class="board-next">Конечная маршрута. Дальше <a :href="withBase('/diploma')">дипломный проект</a>.</p>
     <p v-else class="board-next">Конечная линии. Дальше пересадка на следующий модуль.</p>
   </nav>
 </template>
@@ -50,6 +52,7 @@ const pos = computed(() => {
 }
 .board-head {
   display: flex;
+  flex-wrap: wrap; /* длинное название линии на 360px: «станция N из M» уходит на вторую строку */
   justify-content: space-between;
   gap: 12px;
   font-family: var(--gs-font-display);
@@ -57,7 +60,7 @@ const pos = computed(() => {
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.board-line { font-weight: 700; }
+.board-line { font-weight: 700; overflow-wrap: break-word; }
 .board-pos { opacity: 0.7; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .track {
   --gap: 1fr;
@@ -108,9 +111,12 @@ const pos = computed(() => {
 .stop a:hover .name, .stop a:focus-visible .name { opacity: 1; text-decoration: underline; }
 .stop a:focus-visible { outline: 2px solid var(--line); outline-offset: 4px; border-radius: 4px; }
 .board-next { margin: 4px 0 0; font-size: 14px; }
+.board-next a { color: inherit; text-decoration: underline; text-decoration-color: var(--line); text-decoration-thickness: 2px; text-underline-offset: 3px; }
 @media (max-width: 640px) {
   .name { display: none; }
   .here .name { display: block; position: absolute; top: 28px; left: 0; width: max-content; max-width: 60vw; }
+  /* во второй половине линии подпись растёт влево, иначе у последних станций вылезает за экран */
+  .here.tail .name { left: auto; right: 0; text-align: right; }
   .track { margin-bottom: 40px; }
 }
 </style>

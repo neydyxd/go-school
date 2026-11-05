@@ -44,7 +44,8 @@ const picked = ref<number | null>(null)
   color: var(--vp-c-text-1);
   text-align: left;
 }
-.opt code { background: none; padding: 0; font-size: 14px; white-space: pre-wrap; }
+.opt { max-width: 100%; }
+.opt code { background: none; padding: 0; font-size: 14px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .opt:not(:disabled):hover { border-color: var(--vp-c-text-2); }
 .opt:focus-visible { outline: 2px solid var(--vp-c-brand-1); outline-offset: 2px; }
 .opt:disabled { cursor: default; }

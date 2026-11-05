@@ -1,6 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
-import { defineComponent, h, onMounted } from 'vue'
+import { defineAsyncComponent, defineComponent, h, onMounted } from 'vue'
 import { useCourse } from './useCourse'
 import { initProgress } from './store'
 import LineBoard from './components/LineBoard.vue'
@@ -33,5 +33,7 @@ export default {
     app.component('Predict', Predict)
     app.component('Hw', Hw)
     app.component('Roadmap', Roadmap)
+    // ponytail: асинхронно, чтобы банк вопросов (сотни отрендеренных ответов) не попал в бандл каждой страницы
+    app.component('Flashcards', defineAsyncComponent(() => import('./components/Flashcards.vue')))
   },
 } satisfies Theme
