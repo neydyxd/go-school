@@ -1,7 +1,9 @@
-# Трекер задач (проект модуля 08)
+# Трекер задач (проект модулей 08 и 09)
 
 REST API на Gin + PostgreSQL + JWT. Полное ТЗ, чеклист приёмки и curl-команды:
 урок «Тестирование сервиса» (m08/l07), раздел «Проект модуля».
+Фоновые задачи на River (письмо исполнителю, ежедневный дайджест просроченного):
+урок «River: ретраи, уникальность, периодика» (m09/l03), раздел «Проект модуля».
 
 ```bash
 cp .env.example .env   # и впиши JWT_SECRET: openssl rand -base64 48
@@ -21,7 +23,9 @@ internal/repository/  pgx через интерфейс DBTX (пул или тр
                       Users.Create готов, остальное TODO
 internal/http/        Gin: роутер, единый формат ошибок из m08/l02, логи запросов (готово),
                       register и /healthz (готово), authenticate и остальные хендлеры (TODO)
-migrations/           goose SQL, встроены в бинарник через embed
+migrations/           goose SQL, встроены в бинарник через embed; RiverUp: таблицы River (готово)
+internal/jobs/        модуль 09: аргументы задач, NewClient, периодический дайджест,
+                      Mailer + LogMailer + FakeMailer (готово); воркеры (TODO)
 ```
 
 Зависимости для TODO добавляются по ходу: `go get github.com/golang-jwt/jwt/v5@v5.3.1`

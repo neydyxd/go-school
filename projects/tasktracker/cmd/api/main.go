@@ -19,6 +19,7 @@ import (
 	"goschool/tasktracker/internal/auth"
 	"goschool/tasktracker/internal/config"
 	api "goschool/tasktracker/internal/http"
+	"goschool/tasktracker/internal/jobs"
 	"goschool/tasktracker/internal/repository"
 	"goschool/tasktracker/internal/service"
 	"goschool/tasktracker/migrations"
@@ -56,6 +57,34 @@ func run() error {
 	if err := migrations.Up(ctx, stdlib.OpenDBFromPool(pool)); err != nil {
 		return err
 	}
+	if err := migrations.RiverUp(ctx, pool); err != nil {
+		return err
+	}
+
+	// Модуль 09: фоновые задачи. Клиент работает в этом же процессе, что и API;
+	// в проде воркеры часто выносят в отдельный процесс (cmd/worker) с тем же NewClient.
+	riverClient, err := jobs.NewClient(pool, log, jobs.LogMailer{Log: log})
+	if err != nil {
+		return fmt.Errorf("river: %w", err)
+	}
+	// Отдельный контекст: останавливаем River сами, ПОСЛЕ HTTP-сервера, чтобы
+	// запросы, которые ещё дорабатывают, могли поставить задачи.
+	if err := riverClient.Start(context.WithoutCancel(ctx)); err != nil {
+		return fmt.Errorf("river start: %w", err)
+	}
+	// Мягкая остановка River на любом выходе из run: defer выполнится после
+	// остановки HTTP и ДО pool.Close (defer-ы идут в обратном порядке), иначе
+	// Close ждал бы соединение, которое держит River. Новые задачи не берём,
+	// текущие дорабатывают до SoftStopTimeout, потом их ctx отменяется.
+	defer func() {
+		stopCtx, cancel := context.WithTimeout(context.Background(), cfg.ShutdownTimeout+15*time.Second)
+		defer cancel()
+		if err := riverClient.Stop(stopCtx); err != nil {
+			log.Error("остановка River", "err", err)
+			return
+		}
+		log.Info("остановлен")
+	}()
 
 	tokens := auth.NewTokens([]byte(cfg.JWTSecret), cfg.AccessTTL)
 	users, refresh := repository.NewUsers(pool), repository.NewRefreshTokens(pool)
@@ -67,7 +96,7 @@ func run() error {
 		Tokens:   tokens,
 		Auth:     service.NewAuthService(users, refresh, auth.Hasher{Cost: bcrypt.DefaultCost}, tokens, cfg.AccessTTL, cfg.RefreshTTL),
 		Projects: service.NewProjectService(projects),
-		Tasks:    service.NewTaskService(projects, tasks, repository.NewTxManager(pool)),
+		Tasks:    service.NewTaskService(projects, tasks, repository.NewTxManager(pool).WithRiver(riverClient)),
 	})
 
 	srv := &http.Server{
@@ -99,6 +128,6 @@ func run() error {
 	if err := <-errCh; !errors.Is(err, http.ErrServerClosed) {
 		return err
 	}
-	log.Info("остановлен")
+	log.Info("HTTP остановлен")
 	return nil
 }

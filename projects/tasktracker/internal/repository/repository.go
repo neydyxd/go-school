@@ -11,7 +11,9 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/riverqueue/river"
 
+	"goschool/tasktracker/internal/jobs"
 	"goschool/tasktracker/internal/service"
 )
 
@@ -29,16 +31,26 @@ var (
 )
 
 // TxManager выполняет несколько операций сервиса в одной транзакции. Готово.
-type TxManager struct{ pool *pgxpool.Pool }
+type TxManager struct {
+	pool  *pgxpool.Pool
+	river *river.Client[pgx.Tx] // модуль 09: nil, пока не вызван WithRiver
+}
 
 func NewTxManager(pool *pgxpool.Pool) *TxManager { return &TxManager{pool: pool} }
+
+// WithRiver подключает клиент River: после этого Store.Jobs в InTx ставит
+// задачи в очередь через InsertTx в той же транзакции. Готово (модуль 09).
+func (m *TxManager) WithRiver(c *river.Client[pgx.Tx]) *TxManager {
+	m.river = c
+	return m
+}
 
 // InTx открывает транзакцию, отдаёт в fn репозитории, привязанные к ней, и делает
 // COMMIT, если fn вернула nil, иначе ROLLBACK (pgx.BeginFunc).
 //
-// В модуле про фоновые задачи сюда добавится постановка задачи River в ту же
-// транзакцию: riverClient.InsertTx(ctx, tx, ...) рядом с Tasks.Create. Задача
-// попадёт в очередь тогда и только тогда, когда закоммитится сама бизнес-запись.
+// Store.Jobs ставит задачи River через riverClient.InsertTx(ctx, tx, ...) в эту же
+// транзакцию: задача попадёт в очередь тогда и только тогда, когда закоммитится
+// сама бизнес-запись, и не станет видна воркерам раньше коммита.
 func (m *TxManager) InTx(ctx context.Context, fn func(s service.Store) error) error {
 	return pgx.BeginFunc(ctx, m.pool, func(tx pgx.Tx) error {
 		return fn(service.Store{
@@ -46,8 +58,32 @@ func (m *TxManager) InTx(ctx context.Context, fn func(s service.Store) error) er
 			Refresh:  NewRefreshTokens(tx),
 			Projects: NewProjects(tx),
 			Tasks:    NewTasks(tx),
+			Jobs:     Jobs{client: m.river, tx: tx},
 		})
 	})
+}
+
+// ---- Фоновые задачи (модуль 09) ----
+
+// Jobs реализует service.JobQueue поверх River. ГОТОВЫЙ ОБРАЗЕЦ.
+type Jobs struct {
+	client *river.Client[pgx.Tx]
+	tx     pgx.Tx
+}
+
+// errNoRiver: TxManager собран без WithRiver.
+var errNoRiver = errors.New("River не подключён: вызови TxManager.WithRiver")
+
+// TaskAssigned ставит письмо исполнителю в той же транзакции, что и запись задачи.
+func (j Jobs) TaskAssigned(ctx context.Context, taskID, assigneeID int64) error {
+	if j.client == nil {
+		return errNoRiver
+	}
+	_, err := j.client.InsertTx(ctx, j.tx, jobs.TaskAssignedArgs{TaskID: taskID, AssigneeID: assigneeID}, nil)
+	if err != nil {
+		return fmt.Errorf("jobs.TaskAssigned: %w", err)
+	}
+	return nil
 }
 
 // mapErr переводит ошибки базы в ошибки сервиса.
@@ -179,10 +215,18 @@ func (r *Tasks) Delete(ctx context.Context, ownerID, id int64) error {
 	return service.ErrNotImplemented
 }
 
+// Assign (модуль 09): UPDATE tasks t SET assignee_id = $3, due_at = $4, updated_at = now()
+// FROM projects p WHERE p.id = t.project_id AND p.owner_id = $1 AND t.id = $2 RETURNING ...
+// 0 строк: ErrNotFound. 23503 (нет такого пользователя): ошибка валидации поля assignee_id. TODO.
+func (r *Tasks) Assign(ctx context.Context, ownerID, id int64, assigneeID *int64, dueAt *time.Time) (service.Task, error) {
+	return service.Task{}, service.ErrNotImplemented
+}
+
 // Проверка на этапе компиляции: типы реализуют интерфейсы сервиса.
 var (
 	_ service.UserRepo    = (*Users)(nil)
 	_ service.RefreshRepo = (*RefreshTokens)(nil)
 	_ service.ProjectRepo = (*Projects)(nil)
 	_ service.TaskRepo    = (*Tasks)(nil)
+	_ service.JobQueue    = Jobs{}
 )

@@ -1,6 +1,9 @@
 package service
 
-import "context"
+import (
+	"context"
+	"time"
+)
 
 // ProjectRepo: все методы видят только проекты владельца ownerID.
 type ProjectRepo interface {
@@ -18,6 +21,8 @@ type TaskRepo interface {
 	List(ctx context.Context, ownerID, projectID int64, f TaskFilter) ([]Task, error)
 	Update(ctx context.Context, ownerID int64, t Task) (Task, error)
 	Delete(ctx context.Context, ownerID, id int64) error
+	// Assign (модуль 09) ставит исполнителя и срок; nil снимает. Владелец проверяется в SQL.
+	Assign(ctx context.Context, ownerID, id int64, assigneeID *int64, dueAt *time.Time) (Task, error)
 }
 
 type ProjectService struct{ repo ProjectRepo }
@@ -83,4 +88,20 @@ func (s *TaskService) Update(ctx context.Context, ownerID, id int64, title, stat
 
 func (s *TaskService) Delete(ctx context.Context, ownerID, id int64) error {
 	return ErrNotImplemented
+}
+
+// Assign (модуль 09) назначает исполнителя и срок задачи; nil снимает их. TODO.
+//
+// Всё внутри s.tx.InTx(ctx, func(st Store) error { ... }):
+//  1. prev, err := st.Tasks.Get(ctx, ownerID, id): чужая или нет: ErrNotFound.
+//  2. t, err := st.Tasks.Assign(ctx, ownerID, id, assigneeID, dueAt).
+//  3. Исполнитель появился или сменился (assigneeID != nil и не равен
+//     prev.AssigneeID): st.Jobs.TaskAssigned(ctx, t.ID, *assigneeID).
+//     Тот же исполнитель или снятие: письма нет.
+//
+// Ошибка на любом шаге откатывает всё: и запись задачи, и задачу в очереди.
+// Несуществующий исполнитель (нарушение внешнего ключа 23503) переведи в
+// invalid("assignee_id", ...) через mapErr в репозитории.
+func (s *TaskService) Assign(ctx context.Context, ownerID, id int64, assigneeID *int64, dueAt *time.Time) (Task, error) {
+	return Task{}, ErrNotImplemented
 }

@@ -54,12 +54,14 @@ type Project struct {
 }
 
 type Task struct {
-	ID        int64     `json:"id"`
-	ProjectID int64     `json:"project_id"`
-	Title     string    `json:"title"`
-	Status    string    `json:"status"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         int64      `json:"id"`
+	ProjectID  int64      `json:"project_id"`
+	Title      string     `json:"title"`
+	Status     string     `json:"status"`
+	AssigneeID *int64     `json:"assignee_id"` // модуль 09: nil, если исполнителя нет
+	DueAt      *time.Time `json:"due_at"`      // модуль 09: nil, если срока нет
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 
 // TaskFilter: фильтры и keyset-пагинация списка задач.
@@ -75,6 +77,15 @@ type Store struct {
 	Refresh  RefreshRepo
 	Projects ProjectRepo
 	Tasks    TaskRepo
+	Jobs     JobQueue // модуль 09: фоновые задачи в той же транзакции
+}
+
+// JobQueue ставит фоновые задачи в очередь. Реализация (repository.Jobs) пишет
+// их в таблицу River в той же транзакции, что и остальные записи Store:
+// задача появится в очереди тогда и только тогда, когда транзакция закоммитится.
+// В тестах сервиса подставляй fake, который запоминает вызовы.
+type JobQueue interface {
+	TaskAssigned(ctx context.Context, taskID, assigneeID int64) error
 }
 
 // TxRunner выполняет fn в одной транзакции: все записи через Store либо
