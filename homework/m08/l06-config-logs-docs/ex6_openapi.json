@@ -1,0 +1,12 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tasktracker API",
+    "version": "1.0.0",
+    "description": "TODO: допиши контракт. Требования в начале ex6_openapi_test.go и в уроке."
+  },
+  "paths": {},
+  "components": {
+    "schemas": {}
+  }
+}

@@ -1,0 +1,151 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Tasktracker API",
+    "version": "1.0.0"
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/v1/tasks": {
+      "get": {
+        "summary": "Список задач текущего пользователя",
+        "parameters": [
+          { "name": "status", "in": "query", "schema": { "$ref": "#/components/schemas/Status" } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 } },
+          { "name": "after_id", "in": "query", "schema": { "type": "integer", "minimum": 0 } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Страница задач",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["items"],
+                  "properties": {
+                    "items": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } },
+                    "next_after_id": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" },
+          "422": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "post": {
+        "summary": "Создать задачу",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskCreate" } } }
+        },
+        "responses": {
+          "201": {
+            "description": "Задача создана",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/v1/tasks/{id}": {
+      "parameters": [
+        { "name": "id", "in": "path", "required": true, "schema": { "type": "integer", "minimum": 1 } }
+      ],
+      "get": {
+        "summary": "Задача по id",
+        "responses": {
+          "200": {
+            "description": "Задача",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } }
+          },
+          "401": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "patch": {
+        "summary": "Изменить задачу",
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/TaskUpdate" } } }
+        },
+        "responses": {
+          "200": {
+            "description": "Обновлённая задача",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Task" } } }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "delete": {
+        "summary": "Удалить задачу",
+        "responses": {
+          "204": { "description": "Удалена" },
+          "401": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" }
+    },
+    "responses": {
+      "Error": {
+        "description": "Ошибка в едином формате",
+        "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+      }
+    },
+    "schemas": {
+      "Status": { "type": "string", "enum": ["todo", "in_progress", "done"] },
+      "Task": {
+        "type": "object",
+        "required": ["id", "project_id", "title", "status", "created_at"],
+        "properties": {
+          "id": { "type": "integer" },
+          "project_id": { "type": "integer" },
+          "title": { "type": "string" },
+          "status": { "$ref": "#/components/schemas/Status" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "TaskCreate": {
+        "type": "object",
+        "required": ["project_id", "title"],
+        "properties": {
+          "project_id": { "type": "integer" },
+          "title": { "type": "string", "minLength": 1, "maxLength": 200 }
+        }
+      },
+      "TaskUpdate": {
+        "type": "object",
+        "properties": {
+          "title": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "status": { "$ref": "#/components/schemas/Status" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string", "example": "validation_failed" },
+              "message": { "type": "string" },
+              "fields": { "type": "object", "additionalProperties": { "type": "string" } }
+            }
+          }
+        }
+      }
+    }
+  }
+}
