@@ -8,13 +8,13 @@ import { useCourse } from '../useCourse'
 const props = defineProps<{ id: string; title: string; level?: 'база' | 'посложнее' | 'со звёздочкой' }>()
 const { current } = useCourse()
 const key = computed(() => `${current.value?.l.id ?? 'x'}/${props.id}`)
-const done = computed(() => !!progress.value.hw[key.value])
+const done = computed(() => !!progress.value.hw[key.value]?.done)
 </script>
 
 <template>
   <div class="hw" :class="{ done }">
     <label class="hw-head">
-      <input type="checkbox" :checked="done" @change="update((p) => toggleHw(p, key))" />
+      <input type="checkbox" :checked="done" @change="update((p) => toggleHw(p, key, new Date().toISOString()))" />
       <span class="hw-title">{{ title }}</span>
       <span v-if="level" class="hw-level">{{ level }}</span>
     </label>

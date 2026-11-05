@@ -3,6 +3,7 @@ import type { Theme } from 'vitepress'
 import { defineAsyncComponent, defineComponent, h, onMounted } from 'vue'
 import { useCourse } from './useCourse'
 import { initProgress } from './store'
+import { initSync } from './syncClient'
 import LineBoard from './components/LineBoard.vue'
 import LessonDone from './components/LessonDone.vue'
 import Predict from './components/Predict.vue'
@@ -17,7 +18,10 @@ export default {
     setup() {
       // Цвет линии текущего модуля прокидываем в CSS всей страницы урока.
       const { current } = useCourse()
-      onMounted(initProgress)
+      onMounted(() => {
+        initProgress()
+        initSync()
+      })
       return () =>
         h(
           'div',

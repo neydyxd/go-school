@@ -4,6 +4,7 @@ import { withBase } from 'vitepress'
 import { modules } from '../../course'
 import { data as bank } from '../cards.data'
 import { counts, empty, isWeak, KEY, load, mark, pickDeck, save, shuffle, view, type Card } from '../cards'
+import { CHANGED, SYNCED } from '../syncClient'
 
 // Карточки собеса: вопросы из всех блоков «На собесе спросят». Состояние только на клиенте.
 const storage = (): Storage | null => {
@@ -46,14 +47,19 @@ function rebuild() {
 const onStorage = (e: StorageEvent) => {
   if (e.key === KEY) state.value = load(storage())
 }
+const onSynced = () => (state.value = load(storage()))
 
 onMounted(() => {
   state.value = load(storage())
   mounted.value = true
   rebuild()
   window.addEventListener('storage', onStorage)
+  window.addEventListener(SYNCED, onSynced)
 })
-onUnmounted(() => window.removeEventListener('storage', onStorage))
+onUnmounted(() => {
+  window.removeEventListener('storage', onStorage)
+  window.removeEventListener(SYNCED, onSynced)
+})
 watch([selected, weakOnly], rebuild)
 
 // Фокус следует за содержимым: карточка, иначе итог круга или пустое состояние,
@@ -82,6 +88,7 @@ function answer(known: boolean) {
   if (!c || !revealed.value) return
   state.value = mark(state.value, c.id, known, Date.now())
   save(storage(), state.value)
+  window.dispatchEvent(new Event(CHANGED))
   idx.value++
   revealed.value = false
   focusCard()

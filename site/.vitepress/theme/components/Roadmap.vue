@@ -4,6 +4,7 @@ import { withBase } from 'vitepress'
 import { inkOn, type Module } from '../../course'
 import { useCourse } from '../useCourse'
 import ProgressIO from './ProgressIO.vue'
+import SyncPanel from './SyncPanel.vue'
 
 // Схема маршрута: основная линия модулей + параллельная линия алгоритмов.
 const { modules, ready, isDone, nextUp, total, doneCount, lessonPath } = useCourse()
@@ -97,6 +98,7 @@ const diploma = [
           </div>
         </section>
         <ProgressIO class="io-box" />
+        <SyncPanel class="io-box" />
       </aside>
     </div>
   </div>

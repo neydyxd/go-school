@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { empty, KEY, load, save, type Progress } from './progress'
+import { CHANGED, SYNCED } from './syncClient'
 
 // Один реактивный прогресс на всё приложение. На сервере (SSR) пустой,
 // на клиенте подгружается в init() и синхронизируется между вкладками.
@@ -21,10 +22,12 @@ export function initProgress() {
   window.addEventListener('storage', (e) => {
     if (e.key === KEY) progress.value = load(storage())
   })
+  window.addEventListener(SYNCED, () => (progress.value = load(storage())))
 }
 
 // Все изменения идут через функцию от предыдущего состояния, а не из замыкания рендера.
 export function update(fn: (p: Progress) => Progress) {
   progress.value = fn(progress.value)
   save(storage(), progress.value)
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(CHANGED))
 }

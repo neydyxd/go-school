@@ -20,15 +20,17 @@ const isMark = (x: unknown): x is CardMark =>
   isObj(x) && typeof x.known === 'boolean' && Number.isFinite(x.at) && Number.isInteger(x.seen) && (x.seen as number) >= 0
 
 // Чужая схема целиком даёт пустое состояние; отдельные битые записи просто отбрасываются.
+export function parseCards(x: unknown): CardsState | null {
+  if (!isObj(x) || x.v !== 1 || !isObj(x.cards)) return null
+  const cards: Record<string, CardMark> = {}
+  for (const [id, m] of Object.entries(x.cards)) if (isMark(m)) cards[id] = { known: m.known, at: m.at, seen: m.seen }
+  return { v: 1, cards }
+}
+
 export function load(storage: Storage | null): CardsState {
   try {
     const raw = storage?.getItem(KEY)
-    if (!raw) return empty()
-    const x: unknown = JSON.parse(raw)
-    if (!isObj(x) || x.v !== 1 || !isObj(x.cards)) return empty()
-    const cards: Record<string, CardMark> = {}
-    for (const [id, m] of Object.entries(x.cards)) if (isMark(m)) cards[id] = { known: m.known, at: m.at, seen: m.seen }
-    return { v: 1, cards }
+    return (raw && parseCards(JSON.parse(raw))) || empty()
   } catch {
     return empty()
   }
