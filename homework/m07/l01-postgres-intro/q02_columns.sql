@@ -1,0 +1,7 @@
+-- q02. Описание таблицы books.
+-- Аналог мета-команды \d books обычным SQL: запрос к information_schema.columns.
+-- Выведи колонки таблицы books текущей схемы (table_schema = current_schema()).
+-- Колонки: column_name, data_type, is_nullable.
+-- Порядок: как колонки объявлены в таблице (ordinal_position).
+--
+-- TODO: напиши запрос ниже
