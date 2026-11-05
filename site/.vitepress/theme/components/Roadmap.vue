@@ -15,6 +15,13 @@ const doneIn = (m: Module) => m.lessons.filter((l) => isDone(l.id)).length
 const readyIn = (m: Module) => m.lessons.filter((l) => ready.value.has(l.id)).length
 const pct = computed(() => Math.round((doneCount.value / total) * 100))
 const num = (m: Module) => String(Number(m.id.slice(1)))
+
+// Конечная станция основной линии: дипломный проект (site/content/diploma.md).
+const diploma = [
+  { id: 'booking', title: 'Бронирование переговорок' },
+  { id: 'flags', title: 'Сервис фича-флагов' },
+  { id: 'orders', title: 'Заказы с outbox' },
+]
 </script>
 
 <template>
@@ -59,6 +66,18 @@ const num = (m: Module) => String(Number(m.id.slice(1)))
             <p v-if="m.id === 'm02'" class="transfer" :style="{ '--line': algo.color }">
               Пересадка на линию «{{ algo.short }}»: решай 2-3 задачи в неделю параллельно с основной линией.
             </p>
+          </div>
+        </li>
+        <li class="station terminus">
+          <div class="pin" aria-hidden="true" />
+          <div class="body">
+            <h2 class="st-name"><a :href="withBase('/diploma')">Диплом</a></h2>
+            <p class="st-meta">Конечная · свой сервис со всем стеком курса, тема на выбор</p>
+            <ul class="stops">
+              <li v-for="t in diploma" :key="t.id">
+                <a :href="withBase(`/diploma#${t.id}`)">{{ t.title }}</a>
+              </li>
+            </ul>
           </div>
         </li>
       </ol>
@@ -176,6 +195,12 @@ const num = (m: Module) => String(Number(m.id.slice(1)))
 .stops li.soon::before { border-style: dashed; }
 .stops a { color: var(--vp-c-text-1); text-decoration: none; border-bottom: 1px solid var(--vp-c-divider); }
 .stops a:hover { border-bottom-color: var(--line); }
+.terminus { --line: var(--vp-c-text-1); padding-bottom: 0; }
+.terminus .pin { background: var(--vp-c-bg); border: 10px solid var(--vp-c-text-1); }
+.terminus .pin::after { content: ''; width: 14px; height: 14px; border-radius: 50%; background: var(--vp-c-text-1); }
+.terminus .st-name a { color: inherit; text-decoration: none; border-bottom: 3px solid var(--vp-c-divider); }
+.terminus .st-name a:hover { border-bottom-color: var(--vp-c-text-1); }
+.terminus .st-name a:focus-visible { outline: 3px solid var(--vp-c-text-1); outline-offset: 3px; }
 .transfer {
   margin: 16px 0 0;
   padding: 8px 12px;
@@ -196,6 +221,8 @@ const num = (m: Module) => String(Number(m.id.slice(1)))
   .side { position: static; }
 }
 @media (max-width: 520px) {
+  .terminus .pin { border-width: 7px; }
+  .terminus .pin::after { width: 10px; height: 10px; }
   .map { padding: 28px 16px 64px; }
   .station { grid-template-columns: 40px minmax(0, 1fr); gap: 14px; }
   .pin { width: 40px; height: 40px; font-size: 17px; }

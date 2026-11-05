@@ -1,0 +1,58 @@
+# Весь стенд одной командой: docker compose up -d --build --wait
+# Порты сдвинуты, чтобы не конфликтовать с базой домашки (55432, 56379).
+x-app-env: &app-env
+  DATABASE_URL: postgres://diploma:diploma@postgres:5432/diploma?sslmode=disable
+  REDIS_URL: redis://redis:6379/0
+  LOG_LEVEL: info
+  GIN_MODE: release
+  DRAIN_DELAY: 5s
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: diploma
+      POSTGRES_PASSWORD: diploma
+      POSTGRES_DB: diploma
+    ports: ["55433:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U diploma -d diploma"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  redis:
+    image: redis:7-alpine
+    ports: ["56380:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+  # Миграции отдельным шагом до старта API: тот же образ, флаг -migrate.
+  migrate:
+    build: .
+    image: goschool-diploma:dev
+    command: ["-migrate"]
+    environment: *app-env
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build: .
+    image: goschool-diploma:dev
+    ports: ["${API_PORT:-8080}:8080"]
+    environment: *app-env
+    stop_grace_period: 20s # больше, чем DRAIN_DELAY + SHUTDOWN_TIMEOUT
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:

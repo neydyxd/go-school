@@ -1,0 +1,31 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  # standard: errcheck, govet, ineffassign, staticcheck, unused
+  default: standard
+  enable:
+    - bodyclose # не закрытое тело HTTP-ответа
+    - errorlint # сравнение ошибок через == вместо errors.Is
+    - gosec # типовые проблемы безопасности
+    - noctx # HTTP-запросы и SQL без context
+    - revive # стиль: имена, комментарии
+    - gocritic # подозрительные конструкции
+    - unconvert # лишние преобразования типов
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters: [gosec, noctx, bodyclose, errcheck]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - goschool/diploma

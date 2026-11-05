@@ -57,7 +57,7 @@ export default defineConfig<DefaultTheme.Config & { ready: string[] }>({
   },
   themeConfig: {
     ready, // id готовых уроков, читают компоненты темы
-    nav: [{ text: 'Маршрут', link: '/' }],
+    nav: [{ text: 'Маршрут', link: '/' }, { text: 'Диплом', link: '/diploma' }],
     sidebar,
     outline: { level: [2, 3], label: 'На этой странице' },
     docFooter: { prev: 'Предыдущая станция', next: 'Следующая станция' },
