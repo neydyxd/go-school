@@ -1,0 +1,14 @@
+# Задание ex4 урока «CI на GitHub Actions»: конфиг golangci-lint v2.
+# Проверка конфига: golangci-lint config verify (из папки m10/l04-ci)
+# Прогон: make -C m10/l04-ci lint
+#
+# Требования:
+#   1. version: "2", таймаут прогона 5 минут.
+#   2. Базовый набор standard плюс как минимум: bodyclose, errorlint, gosec,
+#      noctx, gocritic. Для каждого включённого линтера комментарий: что ловит.
+#   3. В *_test.go отключи gosec, noctx, bodyclose и errcheck.
+#   4. Форматтеры gofmt и goimports, local-prefixes: goschool/homework.
+#   5. golangci-lint run ./... по m10/l04-ci с решёнными ex1 и ex2 даёт 0 issues
+#      (nolint допустим только с объяснением после //nolint:<линтер> //).
+
+version: "2"

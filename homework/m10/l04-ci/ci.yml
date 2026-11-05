@@ -1,0 +1,23 @@
+# Задание ex5 урока «CI на GitHub Actions»: workflow для своего Go-сервиса.
+# Положи результат в .github/workflows/ci.yml своего репозитория (например,
+# сервиса из урока про Docker). Проверка синтаксиса локально: actionlint ci.yml
+#
+# Требования:
+#   1. Запуск на push в main и на любой pull request; новый пуш в ту же ветку
+#      отменяет ещё идущий прогон (concurrency).
+#   2. permissions по умолчанию: только contents: read.
+#   3. Job lint: checkout, setup-go с версией из go.mod, проверка gofmt,
+#      go vet, golangci-lint через официальный action с закреплённой версией.
+#   4. Job test: сервис postgres:17-alpine с healthcheck pg_isready,
+#      DATABASE_URL в env, go test -race -count=1 с профилем покрытия,
+#      итог покрытия в лог, coverage.out как артефакт.
+#   5. Job build: только после lint и test; собирает Docker-образ через buildx
+#      с кешем слоёв type=gha; пушит в ghcr.io только на push (не на PR),
+#      тег это SHA коммита. Права packages: write только у этого job.
+#   6. У каждого job timeout-minutes.
+
+name: CI
+
+on: {}
+
+jobs: {}

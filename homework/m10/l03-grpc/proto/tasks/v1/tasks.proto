@@ -1,0 +1,73 @@
+// Контракт сервиса задач для урока «gRPC и protobuf».
+// После правки перегенерируй код из папки homework/m10/l03-grpc:
+//   buf lint && buf generate
+syntax = "proto3";
+
+package tasks.v1;
+
+option go_package = "goschool/homework/m10/l03-grpc/gen/tasks/v1;tasksv1";
+
+service TaskService {
+  // Unary: один запрос, один ответ.
+  rpc CreateTask(CreateTaskRequest) returns (CreateTaskResponse);
+  rpc GetTask(GetTaskRequest) returns (GetTaskResponse);
+  // Server streaming: один запрос, поток ответов.
+  rpc ListTasks(ListTasksRequest) returns (stream ListTasksResponse);
+  // Client streaming: поток запросов, один ответ.
+  rpc ImportTasks(stream ImportTasksRequest) returns (ImportTasksResponse);
+}
+
+enum Priority {
+  // Нулевое значение обязано быть «не задано»: его получит
+  // любое сообщение, где поле не заполнили.
+  PRIORITY_UNSPECIFIED = 0;
+  PRIORITY_LOW = 1;
+  PRIORITY_HIGH = 2;
+}
+
+message Task {
+  int64 id = 1;
+  string title = 2;
+  bool done = 3;
+  repeated string tags = 4;
+  Priority priority = 5;
+}
+
+message CreateTaskRequest {
+  string title = 1;
+  repeated string tags = 2;
+  Priority priority = 3;
+}
+
+message CreateTaskResponse {
+  Task task = 1;
+}
+
+message GetTaskRequest {
+  int64 id = 1;
+}
+
+message GetTaskResponse {
+  Task task = 1;
+}
+
+message ListTasksRequest {
+  // true: только незавершённые задачи.
+  bool only_open = 1;
+}
+
+message ListTasksResponse {
+  Task task = 1;
+}
+
+message ImportTasksRequest {
+  string title = 1;
+  repeated string tags = 2;
+  Priority priority = 3;
+}
+
+message ImportTasksResponse {
+  int32 created = 1;
+  // Ошибки по строкам вида "#2: пустой заголовок" (нумерация с 1).
+  repeated string errors = 2;
+}

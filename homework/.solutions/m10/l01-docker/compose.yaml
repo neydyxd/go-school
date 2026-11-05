@@ -1,0 +1,36 @@
+# Запуск из папки homework/m10/l01-docker:
+#   docker compose up -d --build
+#   curl localhost:18080/readyz
+#   docker compose down -v
+services:
+  app:
+    build:
+      context: ../..
+      dockerfile: m10/l01-docker/Dockerfile
+    image: goschool-l01:dev
+    ports: ["18080:8080"]
+    environment:
+      DATABASE_URL: postgres://app:app@db:5432/app?sslmode=disable
+      LOG_LEVEL: debug
+      SHUTDOWN_TIMEOUT: 15s
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+    stop_grace_period: 20s
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: app
+    volumes: ["dbdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
+volumes:
+  dbdata:

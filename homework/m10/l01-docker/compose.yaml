@@ -1,0 +1,16 @@
+# Задание ex4 урока «Docker для Go». Опиши запуск сервиса вместе с PostgreSQL.
+# Запуск из папки homework/m10/l01-docker:
+#   docker compose up -d --build
+#   curl localhost:18080/readyz
+#   docker compose down -v
+#
+# Требования:
+#   1. Сервис app собирается твоим Dockerfile (контекст: папка homework, то есть ../..).
+#   2. Порт 8080 контейнера опубликован на 18080 хоста.
+#   3. DATABASE_URL указывает на сервис db по имени (не localhost!).
+#   4. app стартует только после того, как db прошла healthcheck (pg_isready).
+#   5. Данные Postgres живут в именованном volume.
+#   6. stop_grace_period больше, чем SHUTDOWN_TIMEOUT сервиса.
+#   7. Пароль в compose для учебного стенда допустим, в проде так не делают.
+
+services: {}

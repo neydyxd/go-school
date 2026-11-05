@@ -1,0 +1,7 @@
+# Этот файл BuildKit применяет только к соседнему Dockerfile:
+# контекст сборки (вся папка homework) уезжает в Docker без лишнего.
+.git
+.solutions
+**/*_test.go
+**/testdata
+**/*.md

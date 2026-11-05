@@ -1,0 +1,38 @@
+# golangci-lint v2. Проверить конфиг: golangci-lint config verify
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  # standard: errcheck, govet, ineffassign, staticcheck, unused
+  default: standard
+  enable:
+    - bodyclose   # не закрытое тело HTTP-ответа
+    - errorlint   # сравнение ошибок через == вместо errors.Is
+    - gosec       # типовые проблемы безопасности
+    - noctx       # HTTP-запросы и SQL без context
+    - revive      # стиль: имена, комментарии к экспортируемому
+    - gocritic    # подозрительные конструкции
+    - unconvert   # лишние преобразования типов
+  settings:
+    revive:
+      rules:
+        - name: exported
+          disabled: true
+  exclusions:
+    presets:
+      - std-error-handling
+    rules:
+      # В тестах проще: временные серверы, запросы без ctx, игнор ошибок Write.
+      - path: _test\.go
+        linters: [gosec, noctx, bodyclose, errcheck]
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - goschool/homework
