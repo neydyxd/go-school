@@ -2,8 +2,8 @@
 // и серверной функции api/sync.ts. Правило одно: у каждой отметки есть время,
 // более поздняя побеждает; при равном времени результат не зависит от порядка.
 
-import { parseProgress, type Mark, type Progress } from './progress'
-import { parseCards, type CardMark, type CardsState } from './cards'
+import { parseProgress, type Mark, type Progress } from './progress.js'
+import { parseCards, type CardMark, type CardsState } from './cards.js'
 
 export type SyncDoc = { progress: Progress; cards: CardsState }
 

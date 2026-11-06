@@ -3,7 +3,7 @@
 // занимает его, остальные получают 403. Сам ключ не хранится, только SHA-256.
 
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { mergeDoc, type SyncDoc } from '../.vitepress/theme/sync'
+import { mergeDoc, type SyncDoc } from '../.vitepress/theme/sync.js'
 
 export type Row = { keyHash: string; doc: SyncDoc; version: number }
 

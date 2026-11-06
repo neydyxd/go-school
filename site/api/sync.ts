@@ -2,8 +2,8 @@
 // Авторизация: Authorization: Bearer <ключ синхронизации>. База: Neon Postgres (DATABASE_URL).
 
 import { neon } from '@neondatabase/serverless'
-import { parseDoc, type SyncDoc } from '../.vitepress/theme/sync'
-import { syncState, type Db } from '../server/syncCore'
+import { parseDoc, type SyncDoc } from '../.vitepress/theme/sync.js'
+import { syncState, type Db } from '../server/syncCore.js'
 
 const MAX_BODY = 1_000_000
 
